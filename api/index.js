@@ -84,6 +84,5 @@ app.post('/api/extract/both', (req, res) => {
     });
 });
 
-app.listen(PORT, () => {
-    console.log(`Backend running on port ${PORT}`);
-});
+// Export the app for Vercel
+module.exports = app;
