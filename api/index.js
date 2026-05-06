@@ -17,12 +17,16 @@ const extractDomains = (text, mode) => {
     const textWithoutProtocols = textWithoutEmails.replace(/(https?|ftp|file):\/\//gi, '');
 
     // 3. Robust Domain Regex
-    // This matches standard domain patterns but excludes things that are clearly not domains (like just numbers)
-    const domainRegex = /(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]/gi;
+    // This matches standard domain patterns but requires the TLD to be alphabetic (2-63 chars)
+    // to avoid matching IP addresses or numeric fragments.
+    const domainRegex = /(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}/gi;
+    const ipRegex = /\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/;
     
     const matches = textWithoutProtocols.match(domainRegex) || [];
     
-    let processed = matches.map(d => d.toLowerCase());
+    let processed = matches
+        .map(d => d.toLowerCase())
+        .filter(d => !ipRegex.test(d)); // Explicitly filter out IP addresses
 
     if (mode === 'root') {
         processed = processed.map(d => {
